@@ -214,6 +214,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/delete-single-softdelete', [App\Http\Controllers\PayableTypeController::class, 'deleteSingleSoftdelete']);
             Route::get('/delete-softdelete', [App\Http\Controllers\PayableTypeController::class, 'deleteSoftdelete']);
         });
+        Route::group(['prefix' => 'store'], function () {
+            Route::get('/', [App\Http\Controllers\StoreController::class, 'getRiders']);
+            Route::post('/createstore', [App\Http\Controllers\StoreController::class, 'createStore']);
+            Route::post('/update', [App\Http\Controllers\StoreController::class, 'updateRider']);
+            Route::get('/delete', [App\Http\Controllers\StoreController::class, 'deleteRider']);
+        });
 
         Route::group(['prefix' => 'services'], function () {
             Route::get('/', [App\Http\Controllers\Api\ServiceController::class, 'getAllServices']);
@@ -677,12 +683,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [App\Http\Controllers\UserController::class, 'updateRider']);
             Route::get('/delete', [App\Http\Controllers\UserController::class, 'deleteRider']);
         });
-        Route::group(['prefix' => 'store'], function () {
-            Route::get('/', [App\Http\Controllers\StoreController::class, 'getRiders']);
-            Route::post('/create', [App\Http\Controllers\StoreController::class, 'createStore']);
-            Route::post('/update', [App\Http\Controllers\StoreController::class, 'updateRider']);
-            Route::get('/delete', [App\Http\Controllers\StoreController::class, 'deleteRider']);
-        });
+
 
         Route::group(['prefix' => 'taxes'], function () {
             Route::get('/', [App\Http\Controllers\TaxController::class, 'getallTaxes']);
@@ -917,6 +918,15 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/total-expenses', [App\Http\Controllers\DashBoardController::class, 'totalExpenses']);
             Route::get('/top-customers', [App\Http\Controllers\DashBoardController::class, 'topCustomer']);
         });
+
+        Route::group(['prefix' => 'brand'], function () {
+            Route::get('/', [App\Http\Controllers\BrandController::class, 'index']); // GET /api/brand
+            Route::post('/create', [App\Http\Controllers\BrandController::class, 'store']); // POST /api/brand/create
+            Route::get('/{id}', [App\Http\Controllers\BrandController::class, 'show']); // GET /api/brand/{id}
+            Route::delete('/delete', [App\Http\Controllers\BrandController::class, 'destroy']); // DELETE /api/brand/delete
+        });
+
+
         Route::get('/get-monthly-deduction', [App\Http\Controllers\Api\JournalController::class, 'getMonthlyDeduction']);
         Route::get('/get-loan-monthly-deduction', [App\Http\Controllers\Api\JournalController::class, 'getLoanMonthlyDeduction']);
         Route::post('/import-monthly-deduction-template', [App\Http\Controllers\Api\JournalController::class, 'importTemplate']);
@@ -937,6 +947,56 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/fetch-expenses', [App\Http\Controllers\Api\JournalController::class, 'fetchExpenses']);
     });
 
+    Route::group(['prefix' => 'store'], function () {
+        Route::get('/', [App\Http\Controllers\StoreController::class, 'index'])->name('store-home');
+        Route::get('/user', [App\Http\Controllers\StoreController::class, 'user'])->name('store-user');
+        Route::get('/destroy-assign-data', [App\Http\Controllers\StoreController::class, 'destroyData'])->name('destroy-assign-data');
+        Route::post('/assign-user', [App\Http\Controllers\StoreController::class, 'assignUser'])->name('assign-user-to-store');
+        Route::get('/assign-user-details', [App\Http\Controllers\StoreController::class, 'assignDetails'])->name('assign-user-details');
+        Route::get('/details', [App\Http\Controllers\StoreController::class, 'details'])->name('store-details');
+        Route::get('/requisition/details-{id}', [App\Http\Controllers\StoreController::class, 'requisitionDetails'])->name('requisition-details');
+        Route::get('/outlet', [App\Http\Controllers\StoreController::class, 'outlet'])->name('store-outlet-home');
+        Route::get('/outlet/products', [App\Http\Controllers\StoreController::class, 'outletProducts'])->name('store-outlet-product');
+        Route::get('/main-to-outlet', [App\Http\Controllers\StoreController::class, 'mainToOutlet'])->name('transfer-main-outlet');
+        Route::get('/transfer-stock', [App\Http\Controllers\StoreController::class, 'transferStock'])->name('transfer-stock');
+        Route::get('/get-outlet', [App\Http\Controllers\StoreController::class, 'getStoreOutlet'])->name('get-store-outlet');
+        Route::get('/get-store-by-type', [App\Http\Controllers\StoreController::class, 'getStoreByType'])->name('get-store-by-type');
+        Route::get('/get-product-by-store-id', [App\Http\Controllers\StoreController::class, 'getProductByStore'])->name('get-product-by-store-id');
+        Route::get('/stocks', [App\Http\Controllers\StoreController::class, 'mainProducts'])->name('store-main-product');
+        Route::get('/store-stocks', [App\Http\Controllers\StoreController::class, 'mainProductsTores'])->name('store-list-product');
+        Route::get('/delete', [App\Http\Controllers\StoreController::class, 'destroy'])->name('delete-store');
+        Route::post('/create', [App\Http\Controllers\StoreController::class, 'create'])->name('create-store');
+        Route::get('/pending-store-requisition', [App\Http\Controllers\StoreController::class, 'pendingStoreRequisiton'])->name('pendingstore-requisition');
+        Route::get('/requisition', [App\Http\Controllers\StoreController::class, 'storeRequestIndex'])->name('store-requisition');
+        Route::get('/stocks/{id}', [App\Http\Controllers\StoreController::class, 'mainProducts'])->name('view-products');
+        Route::get('/make-requisition', [App\Http\Controllers\StoreController::class, 'storeRequest'])->name('make-store-requisition');
+        Route::post('/make-requisition', [App\Http\Controllers\StoreController::class, 'createNewOrder'])->name('create-new-store-order');
+        Route::get('/pending-requisition', [App\Http\Controllers\StoreController::class, 'pendingRequisition'])->name('pending-requisition');
+        Route::get('/approve-requisition', [App\Http\Controllers\StoreController::class, 'approvePurchaseOrder'])->name('approve-requisition');
+        Route::post('/save-received-requisition', [App\Http\Controllers\StoreController::class, 'saveReceivedRequisition'])->name('save-received-requisition');
+        Route::get('/get-pending-requisition-details-by-reference', [App\Http\Controllers\StoreController::class, 'pendingRequisitionByReference'])->name('get-pending-requisition-details-by-reference');
+        Route::get('/stock-management', [App\Http\Controllers\StoreController::class, 'stockDeliverable'])->name('stock-movement');
+        Route::get('/stock-deliverable', [App\Http\Controllers\StoreController::class, 'stockDeliverable'])->name('stock-deliverable');
+    });
+
+    Route::group(['prefix' => 'purchase-order'], function () {
+        Route::get('/', [App\Http\Controllers\PurchaseOrderController::class, 'index'])->name('purchase-order');
+        Route::get('/pending', [App\Http\Controllers\PurchaseOrderController::class, 'pendingPurchaseOder'])->name('pending-purchase-order');
+        Route::get('/edit-{id}', [App\Http\Controllers\PurchaseOrderController::class, 'edit'])->name('edit-purchase-order');
+        Route::get('/print-{id}', [App\Http\Controllers\PurchaseOrderController::class, 'print'])->name('print-order-details');
+        Route::get('/details-{id}', [App\Http\Controllers\PurchaseOrderController::class, 'details'])->name('purchase-order-details');
+        Route::get('/create', [App\Http\Controllers\PurchaseOrderController::class, 'create'])->name('new-purchase-order');
+        Route::post('/create', [App\Http\Controllers\PurchaseOrderController::class, 'createNewOrder'])->name('create-new-purchase-order');
+        Route::get('/delivery', [App\Http\Controllers\PurchaseOrderController::class, 'deliver'])->name('deliver-purchase-order');
+        Route::get('/supplier-order-id', [App\Http\Controllers\PurchaseOrderController::class, 'supplierPendingPurchaseOrder'])->name('get-supplier-pending-purchase-order');
+        Route::get('/supplier-pending-orders', [App\Http\Controllers\PurchaseOrderController::class, 'purchaseDeliveryByOrderId'])->name('get-supplier-purchase-delivery-by-order-id');
+        Route::post('/save-order-delivery', [App\Http\Controllers\PurchaseOrderController::class, 'savePurchaseOrder'])->name('create-purchase-order-delivery');
+        Route::post('/transfer-product', [App\Http\Controllers\PurchaseOrderController::class, 'productTransfer'])->name('transfer-product');
+        Route::get('/received', [App\Http\Controllers\PurchaseOrderController::class, 'received'])->name('received-purchase-order');
+        Route::get('/received-details/{refno}', [App\Http\Controllers\PurchaseOrderController::class, 'receivedDetails'])->name('received-purchase-order-details');
+        Route::get('/delete', [App\Http\Controllers\PurchaseOrderController::class, 'destroy'])->name('delete-order');
+        Route::get('/approve', [App\Http\Controllers\PurchaseOrderController::class, 'approvePurchaseOrder'])->name('approvePurchaseOrder');
+    });
 
     Route::group(['prefix' => 'payment_voucher'], function () {
         Route::get('/download-excel', [App\Http\Controllers\Api\PaymentVoucherController::class, 'download']);
@@ -955,6 +1015,9 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/upload-excel', [AssetRegisterController::class, 'uploadexcel']);
     Route::get('/download-province-parish-statistics', [AssetRegisterController::class, 'getParishStatisticByProvinceExcel']);
 });
+
+
+
 
 //GTC mobile APIs
 

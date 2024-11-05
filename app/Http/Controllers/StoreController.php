@@ -28,11 +28,13 @@ class StoreController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function stockDeliverable(){
+    public function stockDeliverable()
+    {
         $data['stocks'] = ReceiveOrder::orderBy('created_at', 'asc')->get();
         return view('admin.store.deliverable', $data);
     }
-    public function stockMovement(){
+    public function stockMovement()
+    {
         $data['stocks'] = Pincard::orderBy('created_at', 'asc')->get();
         return view('admin.store.movement', $data);
     }
@@ -49,58 +51,63 @@ class StoreController extends Controller
         return view('admin.store.outlet', $data);
     }
 
-    public function mainProductsTores(){
+    public function mainProductsTores()
+    {
         // check if user is assigned to a store
         $userId = Auth::user()->id;
         $storeUser = StoreUser::where('user_id', $userId)->first();
         // dd($storeUser);
-        if($storeUser){
-            $stores= StoreProduct::where('store_id', $storeUser->store_id)->with(['store'])->get(['store_id']);
+        if ($storeUser) {
+            $stores = StoreProduct::where('store_id', $storeUser->store_id)->with(['store'])->get(['store_id']);
 
-        }else{
+        } else {
             $stores = StoreProduct::with(['store'])->get(['store_id']);
         }
 
         // dd($stores);
 
-        $data['stores'] =$stores->pluck('store')->unique();
+        $data['stores'] = $stores->pluck('store')->unique();
 
         $data['title'] = "Store Stocks";
         return view('admin.store.product_stores', $data);
     }
-    public function mainProducts(Request $request){
+    public function mainProducts(Request $request)
+    {
         // check if user is assigned to a store
         $userId = Auth::user()->id;
         $storeUser = StoreUser::where('user_id', $userId)->first();
         // dd($storeUser);
-        if($storeUser){
+        if ($storeUser) {
             $data['items'] = StoreProduct::where('store_id', $storeUser->store_id)->get();
-        }else{
+        } else {
             $data['items'] = StoreProduct::where('store_id', $request->id)->get();
         }
         $data['title'] = "Store Stocks";
         return view('admin.store.product', $data);
     }
-    public function outletProducts(){
+    public function outletProducts()
+    {
         $store = Store::whereNotNull('store_id')->pluck('id')->toArray();
         $data['items'] = StoreProduct::whereIn('store_id', $store)->get();
         $data['title'] = "Outlet Store Products";
         return view('admin.store.product', $data);
     }
 
-    public function getStoreOutlet(Request $request){
-        $pp['data']  = Store::where('store_id', $request->id)->get();
+    public function getStoreOutlet(Request $request)
+    {
+        $pp['data'] = Store::where('store_id', $request->id)->get();
         return json_encode($pp);
     }
 
-    public function getProductByStore(Request $request){
+    public function getProductByStore(Request $request)
+    {
         try {
             $value = StoreProduct::where('store_id', $request->id)->with(['product'])->get();
             return api_request_response(
                 "ok",
                 "Search Complete!",
                 success_status_code(),
-               [$value]
+                [$value]
             );
         } catch (\Exception $exception) {
             return api_request_response(
@@ -110,7 +117,8 @@ class StoreController extends Controller
             );
         }
     }
-    public function getStoreByType(Request $request){
+    public function getStoreByType(Request $request)
+    {
         // dd($request->all());
         try {
             switch ($request->id) {
@@ -133,13 +141,13 @@ class StoreController extends Controller
                 default:
                     $main = Store::whereNull('store_id')->get();
                     $outlet = Store::whereNotNull('store_id')->get();
-                break;
+                    break;
             }
             return api_request_response(
                 "ok",
                 "Search Complete!",
                 success_status_code(),
-               [$main,$outlet]
+                [$main, $outlet]
             );
         } catch (\Exception $exception) {
             return api_request_response(
@@ -150,16 +158,38 @@ class StoreController extends Controller
         }
     }
 
-    public function mainToOutlet(){
+    public function mainToOutlet()
+    {
         $data['stores'] = Store::whereNull('store_id')->get();
         $data['outlets'] = Store::whereNotNull('store_id')->get();
         return view('admin.store.main_to_outlet', $data);
     }
-    public function transferStock(){
+    // public function transferStock(){
+    //     $model = new ReceiveOrder();
+    //     // Get the table name and column name for the enum field
+    //     $table = $model->getTable();
+    //     $column = 'type'; // Replace 'type' with the actual column name in your database
+    //     $enumValues = DB::select("SHOW COLUMNS FROM $table WHERE Field = '$column'")[0]->Type;
+    //     preg_match('/^enum\((.*)\)$/', $enumValues, $matches);
+    //     $enumValues = explode(',', $matches[1]);
+    //     $enumValues = array_map(function ($value) {
+    //         return trim($value, "'");
+    //     }, $enumValues);
+
+    //     // Skip the first two elements and get the rest
+    //     $data['enums'] = array_slice($enumValues, 2);
+
+    //     return view('admin.store.transfer', $data);
+    // }
+
+    public function transferStock(Request $request)
+    {
+        // Instantiate ReceiveOrder model and retrieve the table name and enum field
         $model = new ReceiveOrder();
-        // Get the table name and column name for the enum field
         $table = $model->getTable();
-        $column = 'type'; // Replace 'type' with the actual column name in your database
+        $column = 'type'; // Specify the actual column name in your database
+
+        // Get enum values from the column
         $enumValues = DB::select("SHOW COLUMNS FROM $table WHERE Field = '$column'")[0]->Type;
         preg_match('/^enum\((.*)\)$/', $enumValues, $matches);
         $enumValues = explode(',', $matches[1]);
@@ -167,68 +197,74 @@ class StoreController extends Controller
             return trim($value, "'");
         }, $enumValues);
 
-        // Skip the first two elements and get the rest
-        $data['enums'] = array_slice($enumValues, 2);
+        // Exclude the first two enum values
+        $data = [
+            'enums' => array_slice($enumValues, 2),
+        ];
 
-        return view('admin.store.transfer', $data);
+        return respond(true, 'Stock transfer enum data retrieved successfully', $data, 200);
+
     }
 
-    public function storeRequestIndex(){
-        $data['orders'] = StoreOrder::select('order_id','is_supplied','store_id','created_at', 'approval_status' )
-        ->orderBy('created_at', 'desc')
-        ->selectRaw('SUM(amount) as total_amount')
-        ->selectRaw('SUM(quantity) as total_quantity')
-        ->groupBy('order_id','is_supplied','store_id','created_at','approval_status')
-        ->where('approval_status',1)
-        ->distinct()
-        ->get();
-        $data['pageName']= 'Manage your request';
+    public function storeRequestIndex()
+    {
+        $data['orders'] = StoreOrder::select('order_id', 'is_supplied', 'store_id', 'created_at', 'approval_status')
+            ->orderBy('created_at', 'desc')
+            ->selectRaw('SUM(amount) as total_amount')
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->groupBy('order_id', 'is_supplied', 'store_id', 'created_at', 'approval_status')
+            ->where('approval_status', 1)
+            ->distinct()
+            ->get();
+        $data['pageName'] = 'Manage your request';
         // dd($data);
         return view('admin.store.request-list', $data);
     }
-    public function pendingStoreRequisiton(){
-        $data['orders'] = StoreOrder::select('order_id','is_supplied','store_id','created_at', 'approval_status', 'approval_order' )
-        ->orderBy('created_at', 'desc')
-        ->selectRaw('SUM(amount) as total_amount')
-        ->selectRaw('SUM(quantity) as total_quantity')
-        ->groupBy('order_id','is_supplied','store_id','created_at','approval_status','approval_order')
-        ->where('approval_status',0)
-        ->distinct()
-        ->get();
-        $data['pageName']= 'Pending Request Approval';
+    public function pendingStoreRequisiton()
+    {
+        $data['orders'] = StoreOrder::select('order_id', 'is_supplied', 'store_id', 'created_at', 'approval_status', 'approval_order')
+            ->orderBy('created_at', 'desc')
+            ->selectRaw('SUM(amount) as total_amount')
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->groupBy('order_id', 'is_supplied', 'store_id', 'created_at', 'approval_status', 'approval_order')
+            ->where('approval_status', 0)
+            ->distinct()
+            ->get();
+        $data['pageName'] = 'Pending Request Approval';
         // dd($data);
         return view('admin.store.request-list', $data);
     }
 
-    public function approvePurchaseOrder(Request $request){
+    public function approvePurchaseOrder(Request $request)
+    {
 
 
         $items = StoreOrder::where('order_id', $request->id)->get();
         // approval level
         // dd($item, $re);
-        $item =$items->first();
+        $item = $items->first();
 
         //do validation
-        if(auth()->user()->roles[0]->id != $item->approval_order){
+        if (auth()->user()->roles[0]->id != $item->approval_order) {
             return api_request_response(
                 "error",
                 "You are not the right approver!",
                 bad_response_status_code()
             );
         }
-          $level_of_approval = json_decode($item->approval_level);
-          $approver_list = json_decode($item->approver_list);
-          $names_of_approver = json_decode($item->approved_by);
-          $get_remaining_approvers = json_decode(
-              $item->approver_reminant
-          );
+        $level_of_approval = json_decode($item->approval_level);
+        $approver_list = json_decode($item->approver_list);
+        $names_of_approver = json_decode($item->approved_by);
+        $get_remaining_approvers = json_decode(
+            $item->approver_reminant
+        );
 
-          if (!empty($get_remaining_approvers)) {
+        if (!empty($get_remaining_approvers)) {
             // dd($get_remaining_approvers);
             // move to the next approver
             $next_to_approve = array_shift($get_remaining_approvers);
             $remaining_approvers = $get_remaining_approvers;
-             array_push(
+            array_push(
                 $approver_list,
                 Auth::user()->id
             );
@@ -243,10 +279,10 @@ class StoreController extends Controller
                 ]);
 
                 $description = auth()->user()->name . " approved requisition";
-            myaudit('approved', $item, $description);
+                myaudit('approved', $item, $description);
             }
 
-        }else{
+        } else {
             //approve
             $remaining_approvers = $get_remaining_approvers;
 
@@ -279,16 +315,17 @@ class StoreController extends Controller
     }
 
 
-    public function pendingRequisitionByReference(Request $request){
+    public function pendingRequisitionByReference(Request $request)
+    {
         try {
             // dd($request->id);
-            $value = StoreOrder::where('order_id', $request->id)->with(['store','product'])->get();
-            $stores = Store::where('id', '!=' , $value[0]->store_id)->get();
+            $value = StoreOrder::where('order_id', $request->id)->with(['store', 'product'])->get();
+            $stores = Store::where('id', '!=', $value[0]->store_id)->get();
             return api_request_response(
                 "ok",
                 "Search Complete!",
                 success_status_code(),
-               [$value, $stores]
+                [$value, $stores]
             );
         } catch (\Exception $exception) {
             return api_request_response(
@@ -316,18 +353,18 @@ class StoreController extends Controller
             foreach ($products as $key => $pro) {
                 $itemProduct = Item::where('id', $pro)->first();
                 $check = StoreProduct::where('product_id', $pro)->where('store_id', $from)->first();
-                if($check){
-                    if($check->quantity <  $input['quantity_supplied'][$key]){
+                if ($check) {
+                    if ($check->quantity < $input['quantity_supplied'][$key]) {
                         return api_request_response(
                             "error",
-                           "Store doesn't have enough $itemProduct->name to move from",
+                            "Store doesn't have enough $itemProduct->name to move from",
                             bad_response_status_code(),
                         );
                     }
-                }else{
+                } else {
                     return api_request_response(
                         "error",
-                       "Store doesn't have $itemProduct->name product",
+                        "Store doesn't have $itemProduct->name product",
                         bad_response_status_code(),
                     );
                 }
@@ -339,7 +376,7 @@ class StoreController extends Controller
                     'date_supplied' => now(),
                     'quantity_supplied' => $input['quantity_supplied'][$key],
                     'supplied_price' => str_replace(',', '', $input['supplied_price'][$key]),
-                    'supplied_amount' =>  str_replace(',', '', $input['supplied_amount'][$key]),
+                    'supplied_amount' => str_replace(',', '', $input['supplied_amount'][$key]),
                     'is_supplied' => 1,
                     'received_by' => $user_id,
                 ]);
@@ -349,7 +386,7 @@ class StoreController extends Controller
                 // save new received order
                 $details = new ReceiveOrder;
                 $details->quantity = $input['quantity_supplied'][$key];
-                $details->amount =  str_replace(',', '', $input['supplied_price'][$key]) * $input['quantity_supplied'][$key];
+                $details->amount = str_replace(',', '', $input['supplied_price'][$key]) * $input['quantity_supplied'][$key];
                 $details->price = str_replace(',', '', $input['supplied_price'][$key]);
                 $details->order_id = $generateOrderId;
                 $details->user_id = Auth::user()->id;
@@ -365,11 +402,11 @@ class StoreController extends Controller
 
                 // check if store has this product
                 $verify = StoreProduct::where('store_id', $to)->where('product_id', $product_id)->first();
-                if($verify){
+                if ($verify) {
                     $start = $verify->quantity;
                     $end = $verify->quantity + $input['quantity_supplied'][$key];
                     $verify->update(['quantity' => $end]);
-                }else{
+                } else {
                     $start = 0;
                     $end = $input['quantity_supplied'][$key];
                     $verify = StoreProduct::create([
@@ -383,34 +420,34 @@ class StoreController extends Controller
                 // get data into pincard;
                 $stock_id = $product_id;
                 $user_id = Auth::user()->id;
-                $status= 4;
+                $status = 4;
                 // dd($input);
                 switch ($type) {
                     case "Supplier-Main":
-                        $description = "Purchase Order To" .' '. $orderSuccessful->supplier->name .' '. "Delivered To Main Store" .' '.  $store->store_name ?? "";
+                        $description = "Purchase Order To" . ' ' . $orderSuccessful->supplier->name . ' ' . "Delivered To Main Store" . ' ' . $store->store_name ?? "";
                         break;
                     case "Supplier-Outlet":
-                        $description = "Purchase Order To" .' '. $orderSuccessful->supplier->name .' '. "Delivered To Store Outlet" .' '.  $store->store_name ?? "";
+                        $description = "Purchase Order To" . ' ' . $orderSuccessful->supplier->name . ' ' . "Delivered To Store Outlet" . ' ' . $store->store_name ?? "";
                         break;
                     case "Outlet-Main":
-                        $description = "Item Moved From Store Outlet" .' '. $details->sender->store_name .' '. "To Main Store" .' '.  $store->store_name ;
+                        $description = "Item Moved From Store Outlet" . ' ' . $details->sender->store_name . ' ' . "To Main Store" . ' ' . $store->store_name;
                         break;
                     case "Outlet-Outlet":
-                        $description = "Item Moved From Store Outlet" .' '. $details->sender->store_name .' '. "To Store Outlet" .' '. $store->store_name ;
+                        $description = "Item Moved From Store Outlet" . ' ' . $details->sender->store_name . ' ' . "To Store Outlet" . ' ' . $store->store_name;
                         break;
                     case "Main-Main":
-                        $description = "Item Moved From Main Store" .' '. $details->sender->store_name .' '. "To Main Store" .' '. $store->store_name ;
+                        $description = "Item Moved From Main Store" . ' ' . $details->sender->store_name . ' ' . "To Main Store" . ' ' . $store->store_name;
                         break;
                     case "Main-Outlet":
-                        $description = "Item Moved From Main Store" .' '. $details->sender->store_name  .' '. "To Store Outlet" .' '. $store->store_name ;
+                        $description = "Item Moved From Main Store" . ' ' . $details->sender->store_name . ' ' . "To Store Outlet" . ' ' . $store->store_name;
                         break;
                     default:
-                    $description = "Item Moved From Store Outlet" .' '. $orderSuccessful->supplier->name  .' '. "Delivered";
-                    break;
+                        $description = "Item Moved From Store Outlet" . ' ' . $orderSuccessful->supplier->name . ' ' . "Delivered";
+                        break;
                 }
 
-                $this->pincardFunction($stock_id, $user_id, $status, $prev, $changes, $orderSuccessful->quantity, $description,$request->from);
-                $this->pincardFunction($stock_id, $user_id, $status, $start, $changes, $end, $description,$request->store_id);
+                $this->pincardFunction($stock_id, $user_id, $status, $prev, $changes, $orderSuccessful->quantity, $description, $request->from);
+                $this->pincardFunction($stock_id, $user_id, $status, $start, $changes, $end, $description, $request->store_id);
 
             }
 
@@ -431,16 +468,18 @@ class StoreController extends Controller
             );
         }
     }
-    public function pendingRequisition(){
-        $data['pendings'] = StoreOrder::select('order_id','store_id')->whereNull('is_supplied')->where('approval_status', 1)
-        ->distinct()
-        ->get();
-        return view('admin.order.receive-request',$data);
+    public function pendingRequisition()
+    {
+        $data['pendings'] = StoreOrder::select('order_id', 'store_id')->whereNull('is_supplied')->where('approval_status', 1)
+            ->distinct()
+            ->get();
+        return view('admin.order.receive-request', $data);
     }
 
-    public function createNewOrder(Request $request){
+    public function createNewOrder(Request $request)
+    {
         // dd($request->all());
-        $input= $request->all();
+        $input = $request->all();
         DB::beginTransaction();
         $supplier = $input['store_id'];
         $arrays = $input['product_id'];
@@ -459,24 +498,24 @@ class StoreController extends Controller
             $countAllOrders = StoreOrder::distinct('order_id')->count('order_id');
             $newcount = $countAllOrders + 1;
             $paymentLength = strlen($newcount);
-            if($paymentLength ==1){
+            if ($paymentLength == 1) {
                 $sku = "00" . $newcount;
             }
-            if($paymentLength ==2){
+            if ($paymentLength == 2) {
                 $sku = "01" . $newcount;
             }
-            if($paymentLength ==3){
-                $sku =  $newcount;
+            if ($paymentLength == 3) {
+                $sku = $newcount;
             }
-            if($paymentLength >= 4){
-                $sku =  $newcount;
+            if ($paymentLength >= 4) {
+                $sku = $newcount;
             }
-            $generateOrderId = "TRX".''.$sku;
+            $generateOrderId = "TRX" . '' . $sku;
 
 
             //let's handle approval level
             $approval_level = ApprovalLevel::where('module', 'Requisition Approval')->first();
-            if(!$approval_level){
+            if (!$approval_level) {
                 return api_request_response(
                     "error",
                     'Please specify approval level for Requisition Module',
@@ -495,14 +534,14 @@ class StoreController extends Controller
 
 
 
-            foreach($input['product_id'] as $key => $product){
+            foreach ($input['product_id'] as $key => $product) {
                 $order = new StoreOrder;
                 $order->store_id = $supplier;
                 $order->item = $product;
                 $order->price = $input['unit_price'][$key];
                 $order->total = $input['quantity'][$key];
                 $order->quantity = $input['quantity'][$key];
-                $order->amount = str_replace(',', '', $input['amount'][$key]) ;
+                $order->amount = str_replace(',', '', $input['amount'][$key]);
                 $order->order_id = $generateOrderId;
                 $order->approver_list = $input['approver_list'];
                 $order->approval_order = $input['approval_order'];
@@ -519,7 +558,7 @@ class StoreController extends Controller
                 success_status_code(),
                 $order
             );
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             DB::commit();
             return api_request_response(
                 "error",
@@ -530,7 +569,8 @@ class StoreController extends Controller
         }
     }
 
-    public function storeRequest(){
+    public function storeRequest()
+    {
         $data['stores'] = Store::whereNotNull('store_id')->get();
         $data['items'] = Item::all();
         return view('admin.store.requisition', $data);
@@ -546,49 +586,49 @@ class StoreController extends Controller
         $input = $request->all();
         $file = "store";
         if ($request->exists("image")) {
-            $input['image'] = uploadImage($request->image,$file);
+            $input['image'] = uploadImage($request->image, $file);
         }
         // dd($input);
         try {
-            if($request->type == "Outlet"){
+            if ($request->type == "Outlet") {
                 $input['type'] = $input['type'];
                 $input['store_id'] = $input['store_id'];
                 $validator = Validator::make($request->all(), [
                     'store_id' => 'required|string',
                 ]);
-                if($validator->fails()) {
+                if ($validator->fails()) {
                     return api_request_response(
                         'error',
                         $validator->errors(),
                         bad_response_status_code()
                     );
                 }
-            }else{
+            } else {
                 $input['type'] = $input['type'];
                 $input['store_id'] = NULL;
             }
 
-                if($request->has('id')){
-                    $store = Store::where('id', $request->id)->first();
-                    $store->update($input);
-                    return api_request_response(
-                        "ok",
-                        "Store Update Successful!",
-                        success_status_code(),
-                        $store
-                    );
-                }else{
-                    $store = Store::create($input);
-                    return api_request_response(
-                        "ok",
-                        "Store Created successful!",
-                        success_status_code(),
-                        $store
-                    );
-                }
-
-            } catch (\Exception $e) {
+            if ($request->has('id')) {
+                $store = Store::where('id', $request->id)->first();
+                $store->update($input);
                 return api_request_response(
+                    "ok",
+                    "Store Update Successful!",
+                    success_status_code(),
+                    $store
+                );
+            } else {
+                $store = Store::create($input);
+                return api_request_response(
+                    "ok",
+                    "Store Created successful!",
+                    success_status_code(),
+                    $store
+                );
+            }
+
+        } catch (\Exception $e) {
+            return api_request_response(
                 "error",
                 $e->getMessage(),
                 bad_response_status_code()
@@ -597,17 +637,17 @@ class StoreController extends Controller
     }
     public function details(Request $request)
     {
-        $data  =  Store::where('id',   $request->id)->first();
+        $data = Store::where('id', $request->id)->first();
         return response()->json($data);
     }
     public function requisitionDetails(Request $request)
     {
         $data['details'] = StoreOrder::where('order_id', $request->id)->get();
-        return view('admin.store.details',$data);
+        return view('admin.store.details', $data);
     }
     public function assignDetails(Request $request)
     {
-        $data  =  StoreUser::where('id',   $request->id)->first();
+        $data = StoreUser::where('id', $request->id)->first();
         return response()->json($data);
     }
     public function assignUser(Request $request)
@@ -615,49 +655,49 @@ class StoreController extends Controller
         $input = $request->all();
         // dd($input);
         try {
-                if($request->has('id')){
-                    $store_id = $input['store_id'];
-                    $user_id = $input['user_id'];
-                    $id_to_exclude = $request->id;
-                    // Check for a duplicate entry based on store_id or user_id
-                    $has_duplicate_entry = StoreUser::where(function ($query) use ($store_id, $user_id, $id_to_exclude) {
-                        $query->where('store_id', $store_id)
-                            ->orWhere('user_id', $user_id);
-                    })->where('id', '!=', $id_to_exclude)->first();
-                    if($has_duplicate_entry){
-                        return api_request_response(
-                            "error",
-                            "Duplicate Entry",
-                            bad_response_status_code()
-                        );
-                    }
-                    $store = StoreUser::where('id', $request->id)->first();
-                    $store->update($input);
+            if ($request->has('id')) {
+                $store_id = $input['store_id'];
+                $user_id = $input['user_id'];
+                $id_to_exclude = $request->id;
+                // Check for a duplicate entry based on store_id or user_id
+                $has_duplicate_entry = StoreUser::where(function ($query) use ($store_id, $user_id, $id_to_exclude) {
+                    $query->where('store_id', $store_id)
+                        ->orWhere('user_id', $user_id);
+                })->where('id', '!=', $id_to_exclude)->first();
+                if ($has_duplicate_entry) {
                     return api_request_response(
-                        "ok",
-                        "Record Update Successful!",
-                        success_status_code(),
-                        $store
-                    );
-                }else{
-                    if(StoreUser::where('store_id', $input['store_id'])->first() || StoreUser::where('user_id', $input['user_id'])->first()){
-                        return api_request_response(
-                            "error",
-                            "Duplicate Entry",
-                            bad_response_status_code()
-                        );
-                    }
-                    $store = StoreUser::create($input);
-                    return api_request_response(
-                        "ok",
-                        "User Assigned To Store Successful!",
-                        success_status_code(),
-                        $store
+                        "error",
+                        "Duplicate Entry",
+                        bad_response_status_code()
                     );
                 }
-
-            } catch (\Exception $e) {
+                $store = StoreUser::where('id', $request->id)->first();
+                $store->update($input);
                 return api_request_response(
+                    "ok",
+                    "Record Update Successful!",
+                    success_status_code(),
+                    $store
+                );
+            } else {
+                if (StoreUser::where('store_id', $input['store_id'])->first() || StoreUser::where('user_id', $input['user_id'])->first()) {
+                    return api_request_response(
+                        "error",
+                        "Duplicate Entry",
+                        bad_response_status_code()
+                    );
+                }
+                $store = StoreUser::create($input);
+                return api_request_response(
+                    "ok",
+                    "User Assigned To Store Successful!",
+                    success_status_code(),
+                    $store
+                );
+            }
+
+        } catch (\Exception $e) {
+            return api_request_response(
                 "error",
                 $e->getMessage(),
                 bad_response_status_code()
@@ -675,7 +715,7 @@ class StoreController extends Controller
     {
         $roleToExclude = 'Super Admin'; // Replace with the name of the role to exclude
         $data['officers'] = User::whereDoesntHave('roles', function ($query) use ($roleToExclude) {
-        $query->where('name', $roleToExclude);
+            $query->where('name', $roleToExclude);
         })->get();
         $data['users'] = StoreUser::all();
         $data['stores'] = Store::all();
@@ -725,7 +765,7 @@ class StoreController extends Controller
      */
     public function destroyData(Request $request)
     {
-        try{
+        try {
             $store = StoreUser::where('id', $request->id)->first();
             $store->delete();
             return api_request_response(
@@ -734,7 +774,7 @@ class StoreController extends Controller
                 success_status_code(),
                 $store
             );
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return api_request_response(
                 "error",
                 $exception->getMessage(),
@@ -745,7 +785,7 @@ class StoreController extends Controller
     }
     public function destroy(Request $request)
     {
-        try{
+        try {
             $store = Store::where('id', $request->id)->first();
             $store->delete();
             return api_request_response(
@@ -754,7 +794,7 @@ class StoreController extends Controller
                 success_status_code(),
                 $store
             );
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return api_request_response(
                 "error",
                 $exception->getMessage(),
@@ -765,50 +805,50 @@ class StoreController extends Controller
     }
 
     public function createStore(Request $request)
-{
-    try {
-        DB::beginTransaction();
-        $validator = Validator::make($request->all(), [
-            'store_name' => 'required|string|max:255',
-            'store_address' => 'required|string|max:255',
-            'phone_number' => 'required|numeric',
-            'type' => 'required|in:Main,Outlet',
-            'contact_email' => 'nullable|email',
-            'contact_address' => 'nullable|string',
-            'image' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Max size: 2MB
-        ]);
-
-        if ($validator->fails()) {
-            return respond(false, $validator->errors(), null, 400);
-        }
-        $phoneValidation = formatPhoneNumber($request->phone_number);
-        if (!$phoneValidation['status']) {
-            return respond(false, $phoneValidation['message'], null, 400);
-        }
-        $input = $request->all();
-        $input["phone"]=$input['phone_number'];
-        // dd("here");
-        if ($request->has('image')) {
-            $file = "store";
-            $mainImagePath = uploadImage($request->image, $file);
-            $input['image'] = $mainImagePath;
-        }
-        if ($request->type == "Outlet") {
+    {
+        try {
+            DB::beginTransaction();
             $validator = Validator::make($request->all(), [
-                'store_id' => 'required|exists:stores,id',
+                'store_name' => 'required|string|max:255',
+                'store_address' => 'required|string|max:255',
+                'phone_number' => 'required|numeric',
+                'type' => 'required|in:Main,Outlet',
+                'contact_email' => 'nullable|email',
+                'contact_address' => 'nullable|string',
+                'image' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Max size: 2MB
             ]);
+
             if ($validator->fails()) {
                 return respond(false, $validator->errors(), null, 400);
             }
-            $input['store_id'] = $request->store_id;
+            $phoneValidation = formatPhoneNumber($request->phone_number);
+            if (!$phoneValidation['status']) {
+                return respond(false, $phoneValidation['message'], null, 400);
+            }
+            $input = $request->all();
+            $input["phone"] = $input['phone_number'];
+            // dd("here");
+            if ($request->has('image')) {
+                $file = "store";
+                $mainImagePath = uploadImage($request->image, $file);
+                $input['image'] = $mainImagePath;
+            }
+            if ($request->type == "Outlet") {
+                $validator = Validator::make($request->all(), [
+                    'store_id' => 'required|exists:stores,id',
+                ]);
+                if ($validator->fails()) {
+                    return respond(false, $validator->errors(), null, 400);
+                }
+                $input['store_id'] = $request->store_id;
+            }
+            $store = Store::create($input);
+            DB::commit();
+            return respond(true, 'New store saved successfully!', $store, 201);
+        } catch (\Exception $exception) {
+            DB::rollback();
+            return respond(false, 'Error!', 'Error creating store, please try again.', 400);
         }
-        $store = Store::create($input);
-        DB::commit();
-        return respond(true, 'New store saved successfully!', $store, 201);
-    } catch (\Exception $exception) {
-        DB::rollback();
-        return respond(false, 'Error!', 'Error creating store, please try again.', 400);
     }
-}
 
 }

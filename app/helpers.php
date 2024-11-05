@@ -231,6 +231,7 @@ function generate_uuid()
 }
 
 
+
 function hasConsecutiveDuplicates($array)
 {
     $length = count($array);

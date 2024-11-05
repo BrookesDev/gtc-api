@@ -963,6 +963,26 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/stock-management', [App\Http\Controllers\StoreController::class, 'stockDeliverable'])->name('stock-movement');
         Route::get('/stock-deliverable', [App\Http\Controllers\StoreController::class, 'stockDeliverable'])->name('stock-deliverable');
     });
+
+    Route::group(['prefix' => 'purchase-order'], function () {
+        Route::get('/', [App\Http\Controllers\PurchaseOrderController::class, 'index'])->name('purchase-order');
+        Route::get('/pending', [App\Http\Controllers\PurchaseOrderController::class, 'pendingPurchaseOder'])->name('pending-purchase-order');
+        Route::get('/edit-{id}', [App\Http\Controllers\PurchaseOrderController::class, 'edit'])->name('edit-purchase-order');
+        Route::get('/print-{id}', [App\Http\Controllers\PurchaseOrderController::class, 'print'])->name('print-order-details');
+        Route::get('/details-{id}', [App\Http\Controllers\PurchaseOrderController::class, 'details'])->name('purchase-order-details');
+        Route::get('/create', [App\Http\Controllers\PurchaseOrderController::class, 'create'])->name('new-purchase-order');
+        Route::post('/create', [App\Http\Controllers\PurchaseOrderController::class, 'createNewOrder'])->name('create-new-purchase-order');
+        Route::get('/delivery', [App\Http\Controllers\PurchaseOrderController::class, 'deliver'])->name('deliver-purchase-order');
+        Route::get('/supplier-order-id', [App\Http\Controllers\PurchaseOrderController::class, 'supplierPendingPurchaseOrder'])->name('get-supplier-pending-purchase-order');
+        Route::get('/supplier-pending-orders', [App\Http\Controllers\PurchaseOrderController::class, 'purchaseDeliveryByOrderId'])->name('get-supplier-purchase-delivery-by-order-id');
+        Route::post('/save-order-delivery', [App\Http\Controllers\PurchaseOrderController::class, 'savePurchaseOrder'])->name('create-purchase-order-delivery');
+        Route::post('/transfer-product', [App\Http\Controllers\PurchaseOrderController::class, 'productTransfer'])->name('transfer-product');
+        Route::get('/received', [App\Http\Controllers\PurchaseOrderController::class, 'received'])->name('received-purchase-order');
+        Route::get('/received-details/{refno}', [App\Http\Controllers\PurchaseOrderController::class, 'receivedDetails'])->name('received-purchase-order-details');
+        Route::get('/delete', [App\Http\Controllers\PurchaseOrderController::class, 'destroy'])->name('delete-order');
+        Route::get('/approve', [App\Http\Controllers\PurchaseOrderController::class, 'approvePurchaseOrder'])->name('approvePurchaseOrder');
+    });
+
     Route::group(['prefix' => 'payment_voucher'], function () {
         Route::get('/download-excel', [App\Http\Controllers\Api\PaymentVoucherController::class, 'download']);
     });

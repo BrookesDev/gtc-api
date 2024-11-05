@@ -671,6 +671,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/delete-softdelete', [App\Http\Controllers\BeneficiaryAccountController::class, 'deleteSoftdelete']);
         });
 
+        Route::group(['prefix' => 'rider'], function () {
+            Route::get('/', [App\Http\Controllers\UserController::class, 'getRiders']);
+            Route::post('/add', [App\Http\Controllers\UserController::class, 'createRider']);
+            Route::get('/edit', [App\Http\Controllers\UserController::class, 'editRider']);
+            Route::get('/delete', [App\Http\Controllers\UserController::class, 'deleteRider']);
+            Route::post('/store', [App\Http\Controllers\UserController::class, 'createRider']);
+        });
+
         Route::group(['prefix' => 'taxes'], function () {
             Route::get('/', [App\Http\Controllers\TaxController::class, 'getallTaxes']);
             Route::get('/get-tax', [App\Http\Controllers\TaxController::class, 'getTax']);

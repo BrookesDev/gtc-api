@@ -7,6 +7,7 @@ use App\Http\Controllers\AssetSubcategoryController;
 use App\Http\Controllers\AssetDisposalController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\Api\RequestController;
 use App\Http\Controllers\SalesOrdersController;
 
 
@@ -524,11 +525,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/post-bulk-upload', [App\Http\Controllers\Api\IncomeController::class, 'postUpload']);
             Route::get('/test', [App\Http\Controllers\Api\IncomeController::class, 'TestingPlan']);
         });
-        
+
         //Fixed_asset_Register API
         Route::group(['prefix' => 'fixedassets'], function () {
             Route::get('/', [AssetRegisterController::class, 'getAllFixedAssets']);
-            Route::get('/statistics', [AssetRegisterController::class, 'statistics'])->middleware('admin');;
+            Route::get('/statistics', [AssetRegisterController::class, 'statistics'])->middleware('admin');
+            ;
             Route::get('/assets', [AssetRegisterController::class, 'ggetAllFixedAssets']);
             Route::get('/get-assets-by-company', [AssetRegisterController::class, 'getAssetByParish']);
             Route::get('/getcompanyassets', [AssetRegisterController::class, 'getAssetForParish']);
@@ -930,3 +932,53 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/upload-excel', [AssetRegisterController::class, 'uploadexcel']);
     Route::get('/download-province-parish-statistics', [AssetRegisterController::class, 'getParishStatisticByProvinceExcel']);
 });
+
+//APIs for GTC mobile App
+
+
+Route::post('/set-pin', [App\Http\Controllers\Api\LoginController::class, 'setPin']);
+Route::get('/verify-pin', [App\Http\Controllers\Api\LoginController::class, 'verifyPin']);
+Route::post('/register', [App\Http\Controllers\Api\LoginController::class, 'create']);
+Route::get('/fetch-staff-record', [App\Http\Controllers\CustomerController::class, 'fetchStaffRecord']);
+Route::get('/get-all-categories', [App\Http\Controllers\Api\RequestController::class, 'category']);
+Route::get('/get-all-brands', [App\Http\Controllers\Api\RequestController::class, 'brand']);
+Route::get('/get-item-details', [App\Http\Controllers\Api\RequestController::class, 'getItemDetails']);
+Route::get('/get-all-items', [App\Http\Controllers\Api\RequestController::class, 'item']);
+Route::get('/get-all-items-by-category', [App\Http\Controllers\Api\RequestController::class, 'getCategoryItems']);
+Route::get('/get-all-brands-with-product', [App\Http\Controllers\Api\RequestController::class, 'getBrandWithItems']);
+Route::get('/get-products-by-brand', [App\Http\Controllers\Api\RequestController::class, 'getProductsByBrand']);
+Route::post('/make-order', [App\Http\Controllers\Api\RequestController::class, 'makeOrder']);
+Route::get('/stores', [App\Http\Controllers\Api\RequestController::class, 'getStores']);
+Route::get('/get-category-by-store', [App\Http\Controllers\Api\RequestController::class, 'getCategoryByStore']);
+Route::get('/get-products-by-store', [App\Http\Controllers\Api\RequestController::class, 'getProductsByStore']);
+Route::get('/get-products-by-category-store', [App\Http\Controllers\Api\RequestController::class, 'getProductsByCategoryStore']);
+Route::get('/get-category-products', [App\Http\Controllers\Api\RequestController::class, 'getCategoryProducts']);
+Route::get('/local-govt', [App\Http\Controllers\Api\RequestController::class, 'localGovt']);
+Route::get('/nig-state', [App\Http\Controllers\Api\RequestController::class, 'nigState']);
+Route::post('/forgot-password', [App\Http\Controllers\Api\RequestController::class, 'sendOtp']);
+Route::post('/verify-otp', [App\Http\Controllers\Api\RequestController::class, 'verifyOtp']);
+Route::post('/create-new-password', [App\Http\Controllers\Api\RequestController::class, 'changePassword']);
+Route::post('/create-new-password-with-otp', [App\Http\Controllers\Api\RequestController::class, 'changePasswordOtp']);
+
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('/profile', [App\Http\Controllers\Api\RequestController::class, 'profile']);
+    Route::post('/update-profile', [App\Http\Controllers\Api\RequestController::class, 'profileUpdate']);
+    Route::post('/add-to-cart', [App\Http\Controllers\Api\RequestController::class, 'addToCart']);
+    Route::post('/add-to-cart-from-wish-list', [App\Http\Controllers\Api\RequestController::class, 'addToCartWishList']);
+    Route::post('/add-to-wish-list', [App\Http\Controllers\Api\RequestController::class, 'addToWishList']);
+    Route::post('/generate-invoice', [App\Http\Controllers\Api\RequestController::class, 'generateInvoice']);
+    Route::post('/change-default-address', [App\Http\Controllers\Api\RequestController::class, 'changeDefaultAddress']);
+    Route::get('/customer-cart', [App\Http\Controllers\Api\RequestController::class, 'customerCart']);
+    Route::get('/customer-wish-list', [App\Http\Controllers\Api\RequestController::class, 'customerWishList']);
+    Route::get('/clear-cart', [App\Http\Controllers\Api\RequestController::class, 'clearCart']);
+    Route::get('/customer-paid-orders', [App\Http\Controllers\Api\RequestController::class, 'customerPaidOrders']);
+    Route::get('/customer-delivered-orders', [App\Http\Controllers\Api\RequestController::class, 'customerDeliveredOrders']);
+    Route::get('/delete-customer-cart', [App\Http\Controllers\Api\RequestController::class, 'deleteCartItem']);
+    Route::get('/delete-customer-wish-list', [App\Http\Controllers\Api\RequestController::class, 'deleteWishList']);
+    Route::get('/paid-pending-orders', [App\Http\Controllers\Api\RequestController::class, 'paidPendingOrders']);
+    Route::get('/paid-delivered-orders', [App\Http\Controllers\Api\RequestController::class, 'paidDeliveredOrders']);
+    Route::post('/change-password', [App\Http\Controllers\Api\LoginController::class, 'changeCustomerPassword']);
+    Route::post('/review-product', [App\Http\Controllers\Api\RequestController::class, 'reviewProduct']);
+    Route::post('/logout', [App\Http\Controllers\Api\LoginController::class, 'logout']);
+});
+

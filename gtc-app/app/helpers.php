@@ -324,7 +324,7 @@ function postDoubleEntries($uuid, $glcode, $debit, $credit, $detail, $transactio
     $newJournal->transaction_date = $transaction_date ?? now();
     $newJournal->save();
 }
-function customerledger($ci, $in,  $cd, $zero, $userId, $userCompany, $des, $bl )
+function customerledger($ci, $in, $cd, $zero, $userId, $userCompany, $des, $bl)
 {
     $newJournal = new CustomerPersonalLedger();
     $newJournal->customer_id = $ci;
@@ -1207,5 +1207,35 @@ function stockInventoryReversal($item, $old, $new, $quantity, $stock, $amount, $
     $inventory->description = $detail;
     $inventory->save();
 }
+function myaudit($action, $model, $description = null)
+{
+    $agent = new Agent();
+    // Get device information
+    $deviceName = $agent->device();
+    // Get operating system information
+    $platform = $agent->platform();
+    // Get browser information
+    $browser = $agent->browser();
+    $userAgent = $agent->getUserAgent();
 
+    //let's check the differences in their values
+
+    $userId = Auth::id() ?? 0;
+
+    DB::table('audit_trails')->insert([
+        'user_id' => $userId,
+        'action' => $action,
+        'description' => $description,
+        'model_type' => get_class($model) ?? '',
+        'url' => url()->current(),
+        'machine_name' => $deviceName . ' , ' . $platform . ' , ' . $browser . ' ' . $userAgent,
+        'ip_address' => request()->ip(),
+        'model_id' => $model->id ?? '',
+        'auditable_id' => $model->id ?? '',
+        'old_values' => json_encode($model->getOriginal() ?? []),
+        'new_values' => json_encode($model->getAttributes() ?? []),
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+}
 

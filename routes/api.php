@@ -923,7 +923,37 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/fetch-expenses', [App\Http\Controllers\Api\JournalController::class, 'fetchExpenses']);
     });
 
-
+    Route::group(['prefix' => 'store'], function () {
+        Route::get('/', [App\Http\Controllers\StoreController::class, 'index'])->name('store-home');
+        Route::get('/user', [App\Http\Controllers\StoreController::class, 'user'])->name('store-user');
+        Route::get('/destroy-assign-data', [App\Http\Controllers\StoreController::class, 'destroyData'])->name('destroy-assign-data');
+        Route::post('/assign-user', [App\Http\Controllers\StoreController::class, 'assignUser'])->name('assign-user-to-store');
+        Route::get('/assign-user-details', [App\Http\Controllers\StoreController::class, 'assignDetails'])->name('assign-user-details');
+        Route::get('/details', [App\Http\Controllers\StoreController::class, 'details'])->name('store-details');
+        Route::get('/requisition/details-{id}', [App\Http\Controllers\StoreController::class, 'requisitionDetails'])->name('requisition-details');
+        Route::get('/outlet', [App\Http\Controllers\StoreController::class, 'outlet'])->name('store-outlet-home');
+        Route::get('/outlet/products', [App\Http\Controllers\StoreController::class, 'outletProducts'])->name('store-outlet-product');
+        Route::get('/main-to-outlet', [App\Http\Controllers\StoreController::class, 'mainToOutlet'])->name('transfer-main-outlet');
+        Route::get('/transfer-stock', [App\Http\Controllers\StoreController::class, 'transferStock'])->name('transfer-stock');
+        Route::get('/get-outlet', [App\Http\Controllers\StoreController::class, 'getStoreOutlet'])->name('get-store-outlet');
+        Route::get('/get-store-by-type', [App\Http\Controllers\StoreController::class, 'getStoreByType'])->name('get-store-by-type');
+        Route::get('/get-product-by-store-id', [App\Http\Controllers\StoreController::class, 'getProductByStore'])->name('get-product-by-store-id');
+        Route::get('/stocks', [App\Http\Controllers\StoreController::class, 'mainProducts'])->name('store-main-product');
+        Route::get('/store-stocks', [App\Http\Controllers\StoreController::class, 'mainProductsTores'])->name('store-list-product');
+        Route::get('/delete', [App\Http\Controllers\StoreController::class, 'destroy'])->name('delete-store');
+        Route::post('/create', [App\Http\Controllers\StoreController::class, 'create'])->name('create-store');
+        Route::get('/pending-store-requisition', [App\Http\Controllers\StoreController::class, 'pendingStoreRequisiton'])->name('pendingstore-requisition');
+        Route::get('/requisition', [App\Http\Controllers\StoreController::class, 'storeRequestIndex'])->name('store-requisition');
+        Route::get('/stocks/{id}', [App\Http\Controllers\StoreController::class, 'mainProducts'])->name('view-products');
+        Route::get('/make-requisition', [App\Http\Controllers\StoreController::class, 'storeRequest'])->name('make-store-requisition');
+        Route::post('/make-requisition', [App\Http\Controllers\StoreController::class, 'createNewOrder'])->name('create-new-store-order');
+        Route::get('/pending-requisition', [App\Http\Controllers\StoreController::class, 'pendingRequisition'])->name('pending-requisition');
+        Route::get('/approve-requisition', [App\Http\Controllers\StoreController::class, 'approvePurchaseOrder'])->name('approve-requisition');
+        Route::post('/save-received-requisition', [App\Http\Controllers\StoreController::class, 'saveReceivedRequisition'])->name('save-received-requisition');
+        Route::get('/get-pending-requisition-details-by-reference', [App\Http\Controllers\StoreController::class, 'pendingRequisitionByReference'])->name('get-pending-requisition-details-by-reference');
+        Route::get('/stock-management', [App\Http\Controllers\StoreController::class, 'stockDeliverable'])->name('stock-movement');
+        Route::get('/stock-deliverable', [App\Http\Controllers\StoreController::class, 'stockDeliverable'])->name('stock-deliverable');
+    });
     Route::group(['prefix' => 'payment_voucher'], function () {
         Route::get('/download-excel', [App\Http\Controllers\Api\PaymentVoucherController::class, 'download']);
     });

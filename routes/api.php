@@ -673,10 +673,15 @@ Route::group(['prefix' => 'v1'], function () {
 
         Route::group(['prefix' => 'rider'], function () {
             Route::get('/', [App\Http\Controllers\UserController::class, 'getRiders']);
-            Route::post('/add', [App\Http\Controllers\UserController::class, 'createRider']);
-            Route::get('/edit', [App\Http\Controllers\UserController::class, 'editRider']);
+            Route::post('/create', [App\Http\Controllers\UserController::class, 'createRider']);
+            Route::post('/update', [App\Http\Controllers\UserController::class, 'updateRider']);
             Route::get('/delete', [App\Http\Controllers\UserController::class, 'deleteRider']);
-            Route::post('/store', [App\Http\Controllers\UserController::class, 'createRider']);
+        });
+        Route::group(['prefix' => 'store'], function () {
+            Route::get('/', [App\Http\Controllers\StoreController::class, 'getRiders']);
+            Route::post('/create', [App\Http\Controllers\StoreController::class, 'createStore']);
+            Route::post('/update', [App\Http\Controllers\StoreController::class, 'updateRider']);
+            Route::get('/delete', [App\Http\Controllers\StoreController::class, 'deleteRider']);
         });
 
         Route::group(['prefix' => 'taxes'], function () {

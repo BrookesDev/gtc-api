@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use App\Mail\SendPasswordMail;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 use function App\Helpers\api_request_response;
@@ -238,14 +239,19 @@ class UserController extends Controller
             if ($validator->fails()) {
                 return respond(false, $validator->errors(), null, 400);
             }
+            $phoneValidation = formatPhoneNumber($request->phone_number);
+            if (!$phoneValidation['status']) {
+                return respond(false, $phoneValidation['message'], null, 400);
+            }
             $data = $request->all();
-            $data['name'] = $data['last_name'] . ' ' . $data['first_name'];
+            $data['name'] = $data['first_name'] . ' ' . $data['last_name'];
             $data['phone_no'] = $data['phone_number'];
             $data['user_type'] = "Rider";
-            $data['password'] = Hash::make('password');
+            // $data['password'] = Hash::make('password');
+            $plainPassword = Str::random(8);  // Generates an 8-character random password
+            $data['password'] = Hash::make($plainPassword);
+            Mail::to($request->email)->send(new SendPasswordMail($plainPassword));
             $rep = User::create($data);
-
-
 
             return respond(true, 'Rider created successfully', $rep, 200);
         } catch (\Exception $exception) {
@@ -269,7 +275,7 @@ class UserController extends Controller
                 'phone_number' => [
                     'nullable',
                     'string',
-                    Rule::unique('users', 'phone_number')->ignore($request->id),
+                    Rule::unique('users', 'phone_no')->ignore($request->id),
                 ],
                 'title' => 'nullable',
 
@@ -278,17 +284,45 @@ class UserController extends Controller
             if ($validator->fails()) {
                 return respond(false, $validator->errors(), null, 400);
             }
+            $phoneValidation = formatPhoneNumber($request->phone_number);
+            if (!$phoneValidation['status']) {
+                return respond(false, $phoneValidation['message'], null, 400);
+            }
 
             $id = $request->id;
-            $rep = User::find($id);
+            $rider = User::find($id);
 
             $data = $request->all();
+            $data['name'] = $data['first_name'] . ' ' . $data['last_name'];
+            $data['phone_no'] = $data['phone_number'];
 
-            $rep->update($data);
+            $rider->update($data);
 
-            return respond(true, 'Rider updated successfully', $rep, 200);
+            return respond(true, 'Rider updated successfully', $rider, 200);
         } catch (\Exception $exception) {
             return respond(false, $exception->getMessage(), null, 500);
+        }
+    }
+
+    public function deleteRider(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return respond(false, $validator->errors(), null, 400);
+        }
+
+        try {
+            $id = $request->id;
+            $rider = User::find($id);
+            $rider->delete();
+
+            return respond(true, 'Rider deleted successfully', $rider, 200);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return respond(false, $exception->getMessage(), null, 400);
         }
     }
 

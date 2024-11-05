@@ -1,0 +1,40 @@
+[15-Feb-2023 12:16:43 UTC] PHP Fatal error:  Trait "App\Http\Controllers\App\Mail\Notification" not found in /home/broogevn/accounting.brookessoftware.com/app/Http/Controllers/StockController.php on line 36
+[15-Feb-2023 12:18:18 UTC] PHP Fatal error:  Trait "App\Http\Controllers\App\Mail\Notification" not found in /home/broogevn/accounting.brookessoftware.com/app/Http/Controllers/StockController.php on line 36
+[15-Feb-2023 12:21:08 UTC] PHP Fatal error:  Trait "App\Http\Controllers\App\Mail\Notification" not found in /home/broogevn/accounting.brookessoftware.com/app/Http/Controllers/StockController.php on line 36
+[15-Feb-2023 12:23:39 UTC] PHP Fatal error:  Trait "App\Http\Controllers\App\Mail\Notification" not found in /home/broogevn/accounting.brookessoftware.com/app/Http/Controllers/StockController.php on line 36
+[15-Feb-2023 12:24:35 UTC] PHP Fatal error:  Trait "App\Http\Controllers\App\Mail\Notification" not found in /home/broogevn/accounting.brookessoftware.com/app/Http/Controllers/StockController.php on line 33
+[11-Jul-2023 17:23:29 UTC] PHP Warning:  require(/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:23:29 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/pentejim/accounting.patna.ng/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:24:06 UTC] PHP Warning:  require(/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:24:06 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/pentejim/accounting.patna.ng/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:24:55 UTC] PHP Warning:  require(/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:24:55 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/pentejim/accounting.patna.ng/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:25:40 UTC] PHP Warning:  require(/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:25:40 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/pentejim/accounting.patna.ng/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:25:40 UTC] PHP Warning:  require(/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:25:40 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/pentejim/accounting.patna.ng/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:27:29 UTC] PHP Warning:  require(/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[11-Jul-2023 17:27:29 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/pentejim/accounting.patna.ng/public/../vendor/autoload.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/pentejim/accounting.patna.ng/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/pentejim/accounting.patna.ng/public/index.php on line 34
+[05-Dec-2023 08:12:05 UTC] PHP Warning:  require(/home/pentejim/public_html/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/pentejim/public_html/public/index.php on line 34
+[05-Dec-2023 08:12:05 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/pentejim/public_html/public/../vendor/autoload.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/pentejim/public_html/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/pentejim/public_html/public/index.php on line 34

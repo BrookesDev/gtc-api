@@ -203,14 +203,14 @@ class CustomerController extends Controller
      */
 
 
-     private function generateUniqueEmployeeNo()
-     {
-         do {
-             $employeeNo = rand(10000, 99999);
-         } while (Customers::where('employee_no', $employeeNo)->exists());
+    private function generateUniqueEmployeeNo()
+    {
+        do {
+            $employeeNo = rand(10000, 99999);
+        } while (Customers::where('employee_no', $employeeNo)->exists());
 
-         return $employeeNo;
-     }
+        return $employeeNo;
+    }
     public function customerCount()
     {
         $customerCount = Customers::where('company_id', auth()->user()->company_id)->count();
@@ -246,9 +246,9 @@ class CustomerController extends Controller
                 }
             }
 
-            if(empty($request->employee_no)){
+            if (empty($request->employee_no)) {
                 $employeeNo = $this->generateUniqueEmployeeNo();
-            }else{
+            } else {
                 $employeeNo = $request->employee_no;
             }
             // dd($data);
@@ -634,6 +634,76 @@ class CustomerController extends Controller
             return respond(false, $exception->getMessage(), null, 400);
         }
     }
+    public function newSaveSavingsWithdrawal(Request $request)
+    {
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'amount' => 'required|numeric|min:0',
+            'transaction_date' => 'required|date',
+            'account_id' => 'required|exists:member_savings,id',
+            'bank' => 'required|exists:accounts,id',
+            'customer_id' => 'required|exists:member_savings,member_id',
+        ]);
+
+        // Check for validation errors
+        if ($validator->fails()) {
+            return respond(false, $validator->errors(), null, 400);
+        }
+
+        try {
+            DB::beginTransaction();
+            // Retrieve the bank account and member savings based on the provided IDs
+            // $account = MemberSavings::findOrFail($request->account_id);
+            $memberSaving = MemberSavings::findOrFail($request->account_id);
+            $type = $memberSaving->savings_type;
+            $account = NominalLedger::find($type);
+            // Check if the member has sufficient funds
+
+            $checkLoan = MemberLoan::where('employee_id', $memberSaving->member_id)->first();
+            $loanSum = 0;
+
+            if ($checkLoan) {
+                $loanSum = MemberLoan::where('employee_id', $memberSaving->member_id)
+                    ->sum('total_loan');  // Total outstanding loan sum
+            }
+
+            $availableBalance = $memberSaving->balance - $loanSum;
+
+            if ($availableBalance < $request->amount) {
+                return respond(false, 'Insufficient funds to withdraw after loan adjustment.', null, 400);
+            }
+
+            // Deduct the withdrawal amount from the member's savings account balance
+            $balance = $memberSaving->balance -= $request->amount;
+            $memberSaving->save();
+
+            // Create a new repayment instance
+            $repayment = new Repayment();
+            $repayment->amount = $request->amount;
+            $repayment->transaction_date = $request->transaction_date;
+            $repayment->bank = $request->bank;
+            $repayment->account_id = $memberSaving->id;
+            $repayment->customer_id = $memberSaving->member_id;
+            $repayment->type = 1; // Assuming 'type' refers to withdrawal
+            $repayment->cheque_number = $request->cheque_number;
+            $repayment->save();
+            $bankcode = $request->bank;
+            $glcode = $account->report_to;
+            $detail = $memberSaving->beneficiary->name . ' ' . "withdraw from savings";
+            $transaction_date = $request->transaction_date;
+            // debit report to account
+            postDoubleEntries($memberSaving->prefix, $glcode, $request->amount, 0, $detail, $transaction_date);
+            // credit the bank
+            postDoubleEntries($memberSaving->prefix, $bankcode, 0, $request->amount, $detail, $transaction_date);
+            saveCustomerLedger($request->customer_id, $memberSaving->prefix, 0, $request->amount, $detail, $balance);
+            DB::commit();
+            return respond(true, "Withdrawal successful!", $repayment, 200);
+        } catch (\Exception $exception) {
+            DB::rollback();
+            // Return an error response
+            return respond(false, $exception->getMessage(), null, 400);
+        }
+    }
 
 
 
@@ -928,16 +998,17 @@ class CustomerController extends Controller
         return respond(true, 'All archieved customers permanently deleted successfully!', null, 200);
     }
 
-    public function updatePrefixInLedger(){
+    public function updatePrefixInLedger()
+    {
         //Mr Apuwabi
-        $allMemberSavings = MemberSavings::where('company_id', 30)->select('member_id','prefix')->get();
-        // loop through 
+        $allMemberSavings = MemberSavings::where('company_id', 30)->select('member_id', 'prefix')->get();
+        // loop through
         // dd($allMemberSavings);
-        foreach($allMemberSavings as $single){
+        foreach ($allMemberSavings as $single) {
             $getAllLedgers = CustomerPersonalLedger::where('customer_id', $single->member_id)
-            ->whereNull('invoice_number')
-            ->where('description' ,'like', "%retirement%")
-            ->update(['invoice_number' =>  $single->prefix]);
+                ->whereNull('invoice_number')
+                ->where('description', 'like', "%retirement%")
+                ->update(['invoice_number' => $single->prefix]);
         }
 
         return respond(true, 'O ti do be!', 30, 200);

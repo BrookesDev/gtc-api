@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap');
+body{
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 300;
+    width: 100%;
+    background-color: rgb(204, 204, 204);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif, Cambria, Cochin, Georgia, Times, 'Times New Roman', serif, 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+h2, h4, p{
+    margin: 0;
+}
+
+.page{
+    background: #fff;
+    display: block;
+    margin: auto;
+    position: relative;
+    /* box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5); */
+}
+
+.page[size=A4] {
+    width: 21cm;
+    /* height: 29.7cm; */
+    /* overflow-x: hidden; */
+    margin-bottom: 10px;
+    padding-top: 40px;
+}
+
+.first-text{
+    font-family: 'Calibri';
+ margin-right: 30px;
+    text-align: right;
+    font-weight: 700;
+    /* margin-top: 50px; */
+}
+
+.letter{
+    display: flex;
+    font-size: 10px;
+    font-family:  'Calibri';
+}
+
+.top-area{
+    margin-left: 40px;
+}
+
+.letter-body{
+    margin-left: 40px;
+    font-size: 16px;
+    max-width: 90%;
+    font-family:  'Calibri';
+}
+
+.table-body{
+    margin-top: 30px;
+    margin-left: 40px;
+    font-size: 16px;
+    max-width: 90%;
+    font-family:  'Calibri';
+}
+
+.bottom-page{
+    margin-top: 20px;
+    margin-left: 40px;
+    font-size: 16px;
+    max-width: 90%;
+    font-family:  'Calibri';
+}
+
+/* .top-section{
+    color: #fff;
+    height: 115px;
+    padding: 20px;
+    background-color: #6a1b9a;
+    display: flex;
+}  */
+.top-section h2 {
+    font-size: 42px;
+    margin-bottom: 10px;
+    font-weight: 400;
+}
+.top-section .contact,
+.top-section .address {
+    width: 50%;
+    height: 100%;
+    float: left;
+}
+.top-section .address-content {
+    max-width: 275px;
+} 
+.contact .contact-content{
+    max-width: 220px;
+    float: right;
+    margin-top: 32px;
+} 
+.contact-content .email,
+.contact-content .number {
+    display: block;
+    float: right;
+} 
+.contact-content .email span,
+.contact-content .email span {
+    float: right;
+    margin-left: 30px;
+} 
+.billing-invoice {
+    padding: 20px;
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-weight: 800;
+}
+.billing-invoice .des {
+    font-weight: 800;
+    float: right;
+}
+
+.billing-to {
+    padding: 20px;
+    margin-top: 40px;
+}
+
+.billing-to .title {
+    /* font-weight: 700; */
+    font-size: 20px;
+    margin-bottom: 7px;
+    margin-left: 100px;
+}
+.billing-to .title-date {
+    /* font-weight: 700; */
+    font-size: 20px;
+    margin-bottom: 7px;
+    margin-left: 50px;
+}
+.billing-to .billed-sec {
+    width: 50%;
+    float: left;
+    font-size: 18px;
+    margin-bottom: 25px;
+}
+.billing-to .sub-title,
+.billing-to .name {
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+.billing-to .ship-add {
+    max-width: 300px;
+}
+.table {
+    padding: 0 20;
+}
+.table table {
+    width: 100%;
+}
+.table table, th, td {
+    margin-top: 20px;
+    padding: 5px;
+    text-align: center;
+    border: 2px solid #000;
+    border-collapse: collapse;
+}
+.table tr th {
+    font-size: 18px;
+    font-weight: 700;
+}
+.table table th :first-child {
+    background-color: #6a1b9a;
+}
+.bottom-section {
+    margin-top: 15px;
+    padding: 20px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.bottom-section .status-content h4 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.bottom-section .status.free::before,
+.bottom-section .status.paid::before {
+    padding: 10px 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: inline-block;
+    text-transform: uppercase;
+}
+.bottom-section .status.free::before {
+    content: "UNPAID";
+    background-color: #6a1b9a;
+    color: white;
+}
+.bottom-section .status.paid::before {
+    content: "PAID";
+    background-color: darkgreen;
+    color: white;
+}
+.bottom-section .thanks {
+    text-align: center;
+    font-size: 26px;
+    margin-top: 10px;
+    color: #6a1b9a;
+}

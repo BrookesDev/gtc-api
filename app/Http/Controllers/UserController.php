@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 use function App\Helpers\api_request_response;
 use function App\Helpers\bad_response_status_code;
@@ -216,6 +217,79 @@ class UserController extends Controller
         return redirect()->back()->with('deleted', 'Delete Success!');
         //Session::flash( 'message', 'Delete successfully.' );
     }
+    public function getRiders()
+    {
+        $riders = User::where('user_type', 'Rider')->get();
+        return respond(true, 'Riders fetched successfully', $riders, 200);
+    }
 
+    public function createRider(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                'title' => 'required|string',
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'email' => 'required|email|unique:users,email',
+                'phone_number' => 'required|numeric|unique:users,phone_no',
+                // 'address' => 'required',
+            ]);
+            if ($validator->fails()) {
+                return respond(false, $validator->errors(), null, 400);
+            }
+            $data = $request->all();
+            $data['name'] = $data['last_name'] . ' ' . $data['first_name'];
+            $data['phone_no'] = $data['phone_number'];
+            $data['user_type'] = "Rider";
+            $data['password'] = Hash::make('password');
+            $rep = User::create($data);
+
+
+
+            return respond(true, 'Rider created successfully', $rep, 200);
+        } catch (\Exception $exception) {
+            return respond(false, $exception->getMessage(), null, 400);
+        }
+    }
+
+    public function updateRider(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|exists:users,id',
+                'first_name' => 'nullable',
+                'last_name' => 'nullable',
+                'email' => [
+                    'nullable',
+                    'string',
+                    'email',
+                    Rule::unique('users', 'email')->ignore($request->id),
+                ],
+                'phone_number' => [
+                    'nullable',
+                    'string',
+                    Rule::unique('users', 'phone_number')->ignore($request->id),
+                ],
+                'title' => 'nullable',
+
+            ]);
+
+            if ($validator->fails()) {
+                return respond(false, $validator->errors(), null, 400);
+            }
+
+            $id = $request->id;
+            $rep = User::find($id);
+
+            $data = $request->all();
+
+            $rep->update($data);
+
+            return respond(true, 'Rider updated successfully', $rep, 200);
+        } catch (\Exception $exception) {
+            return respond(false, $exception->getMessage(), null, 500);
+        }
+    }
 
 }

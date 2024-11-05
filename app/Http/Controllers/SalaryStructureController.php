@@ -14,7 +14,7 @@ class SalaryStructureController extends Controller
         try {
             $totalAmount = SalaryStructure::where('company_id', auth()->user()->company_id)->get();
 
-            return response()->json([
+            return response()->json([ 
                 'success' => true,
                 'message' => 'Salary structure fetched successfully',
                 'data' => $totalAmount

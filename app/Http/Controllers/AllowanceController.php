@@ -24,7 +24,7 @@ class AllowanceController extends Controller
     public function index(Request $request)
     {
 
-       
+
 
         $data['allowances'] = Allowance::where('company_id', auth()->user()->company_id)->get();
 
@@ -67,7 +67,7 @@ class AllowanceController extends Controller
         ->where('month', $request->month)
         ->where('amount', $request->amount)
         ->first();
-       
+
 
         if ($existingSt) {
             return response()->json(['message' => "Allowance record already exist"], 400);
@@ -91,25 +91,25 @@ class AllowanceController extends Controller
             'id' => 'required'
 
         ]);
-       
+
         //save new grade
-       
+
         $thisAllowance = Allowance::find($request->id);
         if (!$thisAllowance) {
             return response()->json(['message' => "Allowance does not exist"], 400);
         }
         //check if the allowance already exist
         $existingAll= Allowance::where([['staff_id', $request->description],['company_id',auth()->user()->company_id]])->where('id','!=',$request->id)->first();
-      
-      
+
+
         if ($existingAll) {
             return response()->json(['message' => "Allowance record already exist"], 400);
         }
         $input['company_id'] = auth()->user()->company_id;
         $updateStaff = $thisAllowance->update($input);
         return response()->json(["message" => "Allowance updated successfully", "data" => $thisAllowance], 200);
-  
-       
+
+
     }
     public function specificationold(Request $request)
     {
@@ -207,75 +207,6 @@ class AllowanceController extends Controller
         }
         return redirect()->back()->with('success', "Record saved successfully.");
     }
-    public function specifyNewAllowanceedit(Request $request)
-    {
-        $input = $request->all();
-    
-        // Validate input data
-        $validator = Validator::make($request->all(), [
-            'spec_type' => 'required|in:fixed,percentage',
-            'lower_level' => 'required|exists:levels,id',
-            'upper_level' => 'required|exists:grades,id',
-            'allowance_type' => 'required|exists:allowance_types,id',
-            'spec_value' => 'required|numeric'
-        ]);
-    
-        if (substr($this->currentRouteName, 0, 3) == "api") {
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 400);
-            }
-        }
-    
-        // Map fields to match database structure
-        $input['level'] = $request->lower_level;
-        $input['grade'] = $request->upper_level;
-        $input['configuration_type'] = $request->spec_type;
-        $input['allowance_type_id'] = $request->allowance_type;  // Assuming allowance_type is referenced by ID
-        $input['created_by'] = auth()->user()->id;
-        $input['company_id'] = auth()->user()->company_id;
-    
-        // Fetch SalaryStructure for the specified level and step within the user's company
-        $salaryStructure = SalaryStructure::where('level', $input['level'])
-                                          ->where('grade', $input['grade'])
-                                          ->where('company_id', $input['company_id'])
-                                          ->first();
-    
-        if (!$salaryStructure) {
-            return response()->json(['error' => 'Allowance not found for the specified level and step'], 404);
-        }
-    
-        // Calculate amount based on spec_type (configuration_type)
-        if ($input['configuration_type'] === 'percentage') {
-            $input['percentage'] = $input['spec_value'];
-            $input['amount'] = ($salaryStructure->amount * $input['percentage']) / 100;
-        } else {
-            $input['percentage'] = 0;  // Set percentage to 0 for fixed allowance
-            $input['amount'] = $input['spec_value'];
-        }
-    
-        // Check for duplicate allowance for the same level, step, and allowance type
-        $checkDuplicate = AllowanceAmount::where('level', $input['level'])
-            ->where('grade', $input['grade'])
-            ->where('allowance_type_id', $input['allowance_type_id'])
-            ->where('company_id', $input['company_id'])
-            ->first();
-
-    
-        if ($checkDuplicate) {
-            if (substr($this->currentRouteName, 0, 3) == "api") {
-                return response()->json(["data" => null, "message" => "Record already exists"], 400);
-            }
-            return redirect()->back()->withErrors("Record already exists");
-        }
-    
-        // Save the allowance amount record
-        $saveAllowanceAmount = AllowanceAmount::create($input);
-    
-        if (substr($this->currentRouteName, 0, 3) == "api") {
-            return response()->json(["data" => $saveAllowanceAmount, "message" => "Record added successfully"], 201);
-        }
-        return redirect()->back()->with('success', "Record saved successfully.");
-    }
 
     public function specification(Request $request)
 {
@@ -290,11 +221,11 @@ public function specifyNewAllowance(Request $request)
 {
     // Extract only the specified input fields
     $input = $request->only([
-        'level', 
-        'step', 
-        'configuration_type', 
-        'allowance_type', 
-        'percentage', 
+        'level',
+        'step',
+        'configuration_type',
+        'allowance_type',
+        'percentage',
         'fixed_amount' // renamed from amount for clarity
     ]);
 
@@ -345,19 +276,19 @@ public function specifyNewAllowance(Request $request)
 
         // Calculate fixed amount based on the percentage of salary specification
         $input['fixed_amount'] = ($salarySpecification->amount * $input['percentage']) / 100;
-    } 
+    }
 
     // Map input keys for AllowanceAmount model
     $input['lower_level'] = $input['level'];
     $input['upper_level'] = $input['step'];
     $input['allowance_id'] = $input['allowance_type'];
     $input['spec_type'] = $input['configuration_type'];
-    $input['spec_value'] = $input['fixed_amount']; 
+    $input['spec_value'] = $input['fixed_amount'];
 
     // Create the allowance amount record
     $saveAllowanceAmount = AllowanceAmount::create($input);
 
-    return response()->json(["data" => $saveAllowanceAmount, "message" => "Record added successfully"], 201);
+    return response()->json(["data" => $saveAllowanceAmount, "message" => "Record saved successfully"], 201);
 }
 
 
@@ -429,13 +360,6 @@ public function updateSpecification(Request $request)
     return response()->json(["data" => $allowance, "message" => "Allowance updated successfully"], 200);
 }
 
-
-
-
-
-
-
- 
  // Archive (soft-delete) a Allowance record
  public function deleteAllowance(Request $request)
  {

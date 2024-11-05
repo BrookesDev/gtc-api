@@ -203,14 +203,14 @@ class CustomerController extends Controller
      */
 
 
-     private function generateUniqueEmployeeNo()
-     {
-         do {
-             $employeeNo = rand(10000, 99999);
-         } while (Customers::where('employee_no', $employeeNo)->exists());
+    private function generateUniqueEmployeeNo()
+    {
+        do {
+            $employeeNo = rand(10000, 99999);
+        } while (Customers::where('employee_no', $employeeNo)->exists());
 
-         return $employeeNo;
-     }
+        return $employeeNo;
+    }
     public function customerCount()
     {
         $customerCount = Customers::where('company_id', auth()->user()->company_id)->count();
@@ -246,9 +246,9 @@ class CustomerController extends Controller
                 }
             }
 
-            if(empty($request->employee_no)){
+            if (empty($request->employee_no)) {
                 $employeeNo = $this->generateUniqueEmployeeNo();
-            }else{
+            } else {
                 $employeeNo = $request->employee_no;
             }
             // dd($data);
@@ -658,15 +658,15 @@ class CustomerController extends Controller
             $type = $memberSaving->savings_type;
             $account = NominalLedger::find($type);
             // Check if the member has sufficient funds
-           
+
             $checkLoan = MemberLoan::where('employee_id', $memberSaving->member_id)->first();
             $loanSum = 0;
-        
+
             if ($checkLoan) {
                 $loanSum = MemberLoan::where('employee_id', $memberSaving->member_id)
                     ->sum('total_loan');  // Total outstanding loan sum
             }
-               
+
             $availableBalance = $memberSaving->balance - $loanSum;
 
             if ($availableBalance < $request->amount) {
@@ -998,16 +998,17 @@ class CustomerController extends Controller
         return respond(true, 'All archieved customers permanently deleted successfully!', null, 200);
     }
 
-    public function updatePrefixInLedger(){
+    public function updatePrefixInLedger()
+    {
         //Mr Apuwabi
-        $allMemberSavings = MemberSavings::where('company_id', 30)->select('member_id','prefix')->get();
-        // loop through 
+        $allMemberSavings = MemberSavings::where('company_id', 30)->select('member_id', 'prefix')->get();
+        // loop through
         // dd($allMemberSavings);
-        foreach($allMemberSavings as $single){
+        foreach ($allMemberSavings as $single) {
             $getAllLedgers = CustomerPersonalLedger::where('customer_id', $single->member_id)
-            ->whereNull('invoice_number')
-            ->where('description' ,'like', "%retirement%")
-            ->update(['invoice_number' =>  $single->prefix]);
+                ->whereNull('invoice_number')
+                ->where('description', 'like', "%retirement%")
+                ->update(['invoice_number' => $single->prefix]);
         }
 
         return respond(true, 'O ti do be!', 30, 200);

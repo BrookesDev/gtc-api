@@ -904,6 +904,15 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/total-expenses', [App\Http\Controllers\DashBoardController::class, 'totalExpenses']);
             Route::get('/top-customers', [App\Http\Controllers\DashBoardController::class, 'topCustomer']);
         });
+
+        Route::group(['prefix' => 'brand'], function () {
+    Route::get('/', [App\Http\Controllers\BrandController::class, 'index']); // GET /api/brand
+    Route::post('/create', [App\Http\Controllers\BrandController::class, 'store']); // POST /api/brand/create
+    Route::get('/{id}', [App\Http\Controllers\BrandController::class, 'show']); // GET /api/brand/{id}
+    Route::delete('/delete', [App\Http\Controllers\BrandController::class, 'destroy']); // DELETE /api/brand/delete
+});
+
+
         Route::get('/get-monthly-deduction', [App\Http\Controllers\Api\JournalController::class, 'getMonthlyDeduction']);
         Route::get('/get-loan-monthly-deduction', [App\Http\Controllers\Api\JournalController::class, 'getLoanMonthlyDeduction']);
         Route::post('/import-monthly-deduction-template', [App\Http\Controllers\Api\JournalController::class, 'importTemplate']);
@@ -942,6 +951,9 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/upload-excel', [AssetRegisterController::class, 'uploadexcel']);
     Route::get('/download-province-parish-statistics', [AssetRegisterController::class, 'getParishStatisticByProvinceExcel']);
 });
+
+
+
 
 //GTC mobile APIs
 

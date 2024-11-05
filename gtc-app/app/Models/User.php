@@ -53,7 +53,8 @@ class User extends Authenticatable implements AuditableContract
         'company_id',
         'is_admin',
         'is_first',
-        'member_no'
+        'member_no',
+        'title',
     ];
 
     /**
@@ -212,7 +213,7 @@ class User extends Authenticatable implements AuditableContract
         $name = $continent->description ?? "";
         return $name;
     }
-   
+
     public function transformAudit(array $data): array
     {
 

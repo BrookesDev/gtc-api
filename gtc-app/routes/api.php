@@ -102,6 +102,13 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/delete-single-softdelete', [App\Http\Controllers\ExchangeRateController::class, 'deleteSingleSoftdelete']);
             Route::get('/delete-softdelete', [App\Http\Controllers\ExchangeRateController::class, 'deleteSoftdelete']);
         });
+        Route::group(['prefix' => 'rider'], function () {
+            Route::get('/', [App\Http\Controllers\UserController::class, 'getRiders']);
+            Route::post('/add', [App\Http\Controllers\UserController::class, 'createRider']);
+            Route::get('/edit', [App\Http\Controllers\UserController::class, 'editRider']);
+            Route::get('/delete', [App\Http\Controllers\UserController::class, 'deleteRider']);
+            Route::post('/store', [App\Http\Controllers\UserController::class, 'createRider']);
+        });
 
         Route::group(['prefix' => 'organisation-type'], function () {
             Route::get('/', [App\Http\Controllers\OrganisationTypeController::class, 'index']);
@@ -981,4 +988,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/review-product', [App\Http\Controllers\Api\RequestController::class, 'reviewProduct']);
     Route::post('/logout', [App\Http\Controllers\Api\LoginController::class, 'logout']);
 });
+
 
